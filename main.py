@@ -1,7 +1,7 @@
 # main.py
 
-from db.models.psycopg2_models import connect_to_db, create_tables
-from db.clients.psycopg2_client import Psycopg2Client
+from models.psycopg2_models import connect_to_db, create_tables
+from clients.psycopg2_client import Psycopg2Client
 
 def main():
     conn = connect_to_db()
