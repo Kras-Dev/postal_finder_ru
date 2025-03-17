@@ -1,4 +1,4 @@
-# utils/db_connection.py
+# utils/psycopg2_connection.py
 
 import psycopg2
 from config.db_data import Data
@@ -25,7 +25,7 @@ def connect_to_db():
         custom_logger.log_with_context(f"Error connecting to the database: {e}")
         return None
 
-class DatabaseConnection:
+class Psycopg2Сonnection:
     def __init__(self):
         self.connection = None
         self.cursor = None

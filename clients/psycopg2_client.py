@@ -1,7 +1,6 @@
 # models/psycopg2_client.py
-import logging
+
 from clients.api_client import get_postal_data
-from utils.db_connection import DatabaseConnection
 from utils.custom_logger import CustomLogger
 
 custom_logger = CustomLogger(__name__)
@@ -14,10 +13,12 @@ class PostalCodeInfo:
         self.state = state
 
     def __str__(self):
-        return (f"Долгота: {self.longitude}, "
-                f"Широта: {self.latitude}, "
-                f"Страна: {self.country}, "
-                f"Субъект: {self.state}")
+        return (
+            f"Долгота: {self.longitude},\n"
+            f"Широта: {self.latitude},\n"
+            f"Страна: {self.country},\n"
+            f"Субъект: {self.state}"
+        )
 
 class Psycopg2Client:
     def __init__(self, connection):

@@ -1,16 +1,14 @@
 # models/psycopg2_models.py
-import logging
 import psycopg2
 
-from utils.db_connection import DatabaseConnection
+from utils.psycopg2_connection import Psycopg2Сonnection
 from utils.custom_logger import CustomLogger
 
 custom_logger = CustomLogger(__name__)
 
-
 #Создает таблицы в базе данных, если их нет
 def create_tables():
-    connection = DatabaseConnection()
+    connection = Psycopg2Сonnection()
     connection.connect()
 
     if connection.connection is None:
@@ -32,8 +30,6 @@ def create_tables():
         '''
         # Выполнение команды: это создает новую таблицу
         connection.cursor.execute(create_table_query)
-        # Создание индекса для столбца post_code
-        connection.cursor.execute('CREATE INDEX IF NOT EXISTS idx_post_code ON postal_codes (post_code);')
 
         create_table_query = '''
             CREATE TABLE IF NOT EXISTS postal_codes_requests_statistics (
@@ -43,7 +39,6 @@ def create_tables():
         '''
         connection.cursor.execute(create_table_query)
         # Создание индекса для столбца postal_code в таблице postal_codes_requests_statistics
-        connection.cursor.execute('CREATE INDEX IF NOT EXISTS idx_post_code ON postal_codes_requests_statistics (post_code);')
         connection.connection.commit()
         custom_logger.log_with_context("Tables created successfully.")
 

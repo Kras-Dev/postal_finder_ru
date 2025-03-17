@@ -1,6 +1,6 @@
 # models/sqlalchemy_models.py
 
-from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy import create_engine, Column, Integer, String, Float, Index
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config.db_data import Data
@@ -16,7 +16,7 @@ Base = declarative_base()
 class PostalCode(Base):
     __tablename__ = "postal_codes"
 
-    post_code = Column(String(10), primary_key=True, Index=True)
+    post_code = Column(String(10), primary_key=True)
     country = Column(String(60), nullable=False)
     country_abbreviation = Column(String(2), nullable=False)
     place_name = Column(String(100), nullable=False)
@@ -31,20 +31,20 @@ class PostalCode(Base):
 class PostalCodeRequestStatistics(Base):
     __tablename__ = "postal_codes_requests_statistics"
 
-    postal_code = Column(String(10), primary_key=True, index=True)
+    post_code = Column(String(10), primary_key=True)
     request_count = Column(Integer, default=0)
 
     def __repr__(self):
         return f"<PostalCodeRequestStatistics(postal_code='{self.postal_code}', request_count={self.request_count})>"
 
 Base.metadata.create_all(bind=engine)
-# Создаем сессию
-SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-# Функция для получения сессии
-def get_db():
-    db = SessionLocal()
-    try:
-        yield db
-    finally:
-        db.close()
+# # Создаем сессию
+# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+#
+# # Функция для получения сессии
+# def get_db():
+#     db = SessionLocal()
+#     try:
+#         yield db
+#     finally:
+#         db.close()

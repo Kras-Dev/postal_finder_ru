@@ -20,3 +20,6 @@ class Data:
             raise ValueError(
                 "All database configuration variables (DB_HOST, DB_PORT, DB_USER, DB_PASS, DB_NAME) must"
                 " be set in the environment variables.")
+
+
+
