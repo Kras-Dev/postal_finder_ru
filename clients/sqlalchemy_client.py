@@ -1,1 +1,1 @@
-# db/models/sqlalchemy_client.py
+# models/sqlalchemy_client.py

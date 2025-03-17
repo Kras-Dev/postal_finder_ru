@@ -1,4 +1,4 @@
-# db/models/sqlalchemy_models.py
+# models/sqlalchemy_models.py
 
 from sqlalchemy import create_engine, Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
@@ -16,9 +16,9 @@ Base = declarative_base()
 class PostalCode(Base):
     __tablename__ = "postal_codes"
 
-    post_code = Column(Integer, primary_key=True, Index=True)
+    post_code = Column(String(10), primary_key=True, Index=True)
     country = Column(String(60), nullable=False)
-    country_abbreviation = Column(String(10), nullable=False)
+    country_abbreviation = Column(String(2), nullable=False)
     place_name = Column(String(100), nullable=False)
     longitude = Column(Float, nullable=False)
     state = Column(String(100), nullable=False)
@@ -31,7 +31,7 @@ class PostalCode(Base):
 class PostalCodeRequestStatistics(Base):
     __tablename__ = "postal_codes_requests_statistics"
 
-    postal_code = Column(Integer, primary_key=True, index=True)
+    postal_code = Column(String(10), primary_key=True, index=True)
     request_count = Column(Integer, default=0)
 
     def __repr__(self):
