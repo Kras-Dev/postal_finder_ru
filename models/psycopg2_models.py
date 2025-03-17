@@ -32,9 +32,9 @@ def create_tables(connection):
         # SQL-запрос для создания новой таблицы
         create_table_query = '''
              CREATE TABLE IF NOT EXISTS postal_codes (
-                post_code INT PRIMARY KEY NOT NULL,
+                post_code VARCHAR(10) PRIMARY KEY NOT NULL,
                 country VARCHAR(60) NOT NULL,
-                country_abbreviation VARCHAR(10) NOT NULL,
+                country_abbreviation VARCHAR(2) NOT NULL,
                 place_name VARCHAR(100) NOT NULL,
                 longitude FLOAT NOT NULL,
                 state VARCHAR(255) NOT NULL,

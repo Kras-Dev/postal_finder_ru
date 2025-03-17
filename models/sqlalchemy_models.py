@@ -16,9 +16,9 @@ Base = declarative_base()
 class PostalCode(Base):
     __tablename__ = "postal_codes"
 
-    post_code = Column(Integer, primary_key=True, Index=True)
+    post_code = Column(String(10), primary_key=True, Index=True)
     country = Column(String(60), nullable=False)
-    country_abbreviation = Column(String(10), nullable=False)
+    country_abbreviation = Column(String(2), nullable=False)
     place_name = Column(String(100), nullable=False)
     longitude = Column(Float, nullable=False)
     state = Column(String(100), nullable=False)
