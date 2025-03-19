@@ -14,7 +14,7 @@ class Data:
     DB_URL = f"postgresql+psycopg2://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
     @classmethod
-    def validate(cls):
+    def validate(cls) -> None:
         required_vars = [cls.DB_HOST, cls.DB_PORT, cls.DB_USER, cls.DB_PASS, cls.DB_NAME]
         if any(var is None for var in required_vars):
             raise ValueError(

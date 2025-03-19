@@ -1,37 +1,32 @@
 # models/psycopg2_client.py
+from typing import Optional
 
-from clients.api_client import get_postal_data
 from utils.custom_logger import CustomLogger
+from clients.postal_code_info import PostalCodeInfo
+from utils.psycopg2_connection import Psycopg2Connection
 
 custom_logger = CustomLogger(__name__)
 
-class PostalCodeInfo:
-    def __init__(self, longitude, latitude, country, state):
-        self.longitude = longitude
-        self.latitude = latitude
-        self.country = country
-        self.state = state
-
-    def __str__(self):
-        return (
-            f"Долгота: {self.longitude},\n"
-            f"Широта: {self.latitude},\n"
-            f"Страна: {self.country},\n"
-            f"Субъект: {self.state}"
-        )
-
 class Psycopg2Client:
-    def __init__(self, connection):
+    def __init__(self,  connection: Psycopg2Connection) -> None:
         self.connection = connection
 
-    def select_postal_code(self, postal_code):
-        # SQL-запрос для получения данных о почтовом коде
+    def select_postal_code(self, postal_code: str) -> Optional[PostalCodeInfo]:
+        """Получить информацию о почтовом коде из БД или API."""
+        postal_info = self.get_postal_code_from_db(postal_code)
+        if not postal_info:
+            from service.api_db_service import ApiDBService
+            return ApiDBService(self).fetch_postal_code_from_api(postal_code)
+        return postal_info
+
+    def get_postal_code_from_db(self, postal_code: str) -> Optional[PostalCodeInfo]:
+        """Получить информацию о почтовом коде из БД."""
         query = '''
             SELECT longitude, latitude, country, state
             FROM postal_codes
             WHERE post_code = %s;                
         '''
-        result = self.connection.execute_query(query, (postal_code, ), fetch_one=True)  # Выполняем запрос
+        result = self.connection.execute_query(query, (postal_code, ), fetch_one=True)
         if result:
             longitude, latitude, country, state = result  # Извлекаем данные результата
             postal_info = PostalCodeInfo(longitude, latitude, country, state)  # Создаем объект PostalCodeInfo
@@ -39,22 +34,10 @@ class Psycopg2Client:
             return postal_info  # Возвращаем информацию о почтовом коде
         else:
             custom_logger.log_with_context(f"No postal data {postal_code} found in database")
-            postal_data = get_postal_data(postal_code)  # Запрашиваем данные из API
-            if postal_data:
-                self.insert_postal_code(postal_data)  # Вставляем данные в БД
-                self.increment_request_statistic(postal_code)  # Увеличиваем счётчик запросов
-                return PostalCodeInfo(
-                    postal_data['places'][0]['longitude'],
-                    postal_data['places'][0]['latitude'],
-                    postal_data['country'],
-                    postal_data['places'][0]['state']
-                )
-            else:
-                custom_logger.log_with_context("No postal data found from API")
-                return None
+            return None
 
-    def insert_postal_code(self, postal_data):
-        # SQL-запрос для вставки данных о почтовом коде
+    def insert_postal_code(self, postal_data: dict) -> None:
+        """Вставить данные о почтовом коде в БД."""
         query = '''
             INSERT INTO postal_codes 
             (post_code, country, country_abbreviation, place_name, longitude, latitude, state, state_abbreviation)
@@ -69,16 +52,15 @@ class Psycopg2Client:
             postal_data['places'][0]['latitude'],
             postal_data['places'][0]['state'],
             postal_data['places'][0]['state abbreviation']
-        ), commit=True)  # Вставляем данные и подтверждаем изменения
+        ), commit=True)
 
-    def increment_request_statistic(self, postal_code):
-        # SQL-запрос для проверки, существует ли запись статистики запросов
+    def increment_request_statistic(self, postal_code: str) -> None:
+        """Обновить или создать запись статистики запросов."""
         query_select = '''
             SELECT 1 FROM postal_codes_requests_statistics WHERE post_code = %s
         '''
         result = self.connection.execute_query(query_select, (postal_code,), fetch_one=True)  # Проверяем существование записи
 
-        # SQL-запрос для обновления или вставки записи статистики
         query_update = '''
             UPDATE postal_codes_requests_statistics
             SET request_count = request_count + 1
