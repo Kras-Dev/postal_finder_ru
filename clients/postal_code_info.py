@@ -1,6 +1,7 @@
 # clients/postal_code_info.py
 
 class PostalCodeInfo:
+    """Класс для хранения и представления информации о почтовом коде."""
     def __init__(self, longitude:float, latitude:float, country:str, state:str) -> None:
         """Инициализация объекта PostalCodeInfo.
 

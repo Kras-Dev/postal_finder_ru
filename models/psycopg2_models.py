@@ -8,7 +8,7 @@ custom_logger = CustomLogger(__name__)
 
 class Psycopg2Models:
     def __init__(self) -> None:
-        """Класс управляет подключением к базе данных и предоставляет методы для создания таблиц."""
+        """Класс предоставляет методы для создания таблиц."""
         self.conn = Psycopg2Connection()
 
     def create_tables(self) -> None:
