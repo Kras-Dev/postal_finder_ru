@@ -1,14 +1,15 @@
 # models/psycopg2_models.py
 import psycopg2
 
-from utils.psycopg2_connection import Psycopg2Сonnection
+from utils.psycopg2_connection import Psycopg2Connection
 from utils.custom_logger import CustomLogger
 
 custom_logger = CustomLogger(__name__)
 
 class Psycopg2Models:
     def __init__(self) -> None:
-        self.conn = Psycopg2Сonnection()
+        """Класс управляет подключением к базе данных и предоставляет методы для создания таблиц."""
+        self.conn = Psycopg2Connection()
 
     def create_tables(self) -> None:
         """Создает таблицы в базе данных, если их нет"""
@@ -18,7 +19,6 @@ class Psycopg2Models:
             custom_logger.log_with_context("No valid connection provided.")
             return
         try:
-            # SQL-запрос для создания новой таблицы
             create_table_query = '''
                  CREATE TABLE IF NOT EXISTS postal_codes (
                     post_code VARCHAR(10) PRIMARY KEY NOT NULL,

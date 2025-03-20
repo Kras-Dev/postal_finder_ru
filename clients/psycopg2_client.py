@@ -8,11 +8,18 @@ from utils.psycopg2_connection import Psycopg2Connection
 custom_logger = CustomLogger(__name__)
 
 class Psycopg2Client:
+    """Класс `Psycopg2Client` предназначен для работы с базой данных PostgresSQL и предоставляет методы для получения
+    информации о почтовых кодах."""
     def __init__(self,  connection: Psycopg2Connection) -> None:
+        """Инициализирует экземпляр класса `Psycopg2Client` с соединением с базой данных.
+            :param connection: Объект типа `Psycopg2Connection`, представляющий соединение с базой данных."""
         self.connection = connection
 
     def select_postal_code(self, postal_code: str) -> Optional[PostalCodeInfo]:
-        """Получить информацию о почтовом коде из БД или API."""
+        """Получает информацию о почтовом коде из базы данных или API.
+            :param postal_code: Строка, представляющая почтовый код, для которого необходимо получить информацию.
+            :return: Optional[PostalCodeInfo]: Содержит данные о почтовом коде, если они найдены в базе данных или
+                получены через API; иначе возвращает `None`."""
         postal_info = self.get_postal_code_from_db(postal_code)
         if not postal_info:
             from service.api_db_service import ApiDBService
@@ -20,7 +27,9 @@ class Psycopg2Client:
         return postal_info
 
     def get_postal_code_from_db(self, postal_code: str) -> Optional[PostalCodeInfo]:
-        """Получить информацию о почтовом коде из БД."""
+        """Получает информацию о почтовом коде из базы данных.
+            :param postal_code: Строка, представляющая почтовый код.
+            :return: Optional[PostalCodeInfo]: Содержит данные о почтовом коде, если они найдены; иначе возвращает `None`."""
         query = '''
             SELECT longitude, latitude, country, state
             FROM postal_codes
@@ -28,8 +37,8 @@ class Psycopg2Client:
         '''
         result = self.connection.execute_query(query, (postal_code, ), fetch_one=True)
         if result:
-            longitude, latitude, country, state = result  # Извлекаем данные результата
-            postal_info = PostalCodeInfo(longitude, latitude, country, state)  # Создаем объект PostalCodeInfo
+            #longitude, latitude, country, state = result  # Извлекаем данные результата
+            postal_info = PostalCodeInfo(*result)#longitude, latitude, country, state)
             self.increment_request_statistic(postal_code)  # Увеличиваем счётчик запросов
             return postal_info  # Возвращаем информацию о почтовом коде
         else:
@@ -37,7 +46,8 @@ class Psycopg2Client:
             return None
 
     def insert_postal_code(self, postal_data: dict) -> None:
-        """Вставить данные о почтовом коде в БД."""
+        """Вставляет данные о почтовом коде в базу данных.
+            :param postal_data: Словарь, содержащий информацию о почтовых данных."""
         query = '''
             INSERT INTO postal_codes 
             (post_code, country, country_abbreviation, place_name, longitude, latitude, state, state_abbreviation)
@@ -55,7 +65,8 @@ class Psycopg2Client:
         ), commit=True)
 
     def increment_request_statistic(self, postal_code: str) -> None:
-        """Обновить или создать запись статистики запросов."""
+        """Обновляет или создает запись статистики запросов для заданного почтового кода.
+        :param postal_code: Строка, представляющая почтовый код, для которого необходимо обновить статистику."""
         query_select = '''
             SELECT 1 FROM postal_codes_requests_statistics WHERE post_code = %s
         '''

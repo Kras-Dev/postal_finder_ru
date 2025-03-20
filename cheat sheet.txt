@@ -2,7 +2,6 @@
 
 . venv/Scripts/activate
 
-
 Команда pip freeze > requirements.txt используется в Python для создания файла requirements.txt,
 который содержит список всех установленных пакетов и их версий в вашем виртуальном окружении.
 

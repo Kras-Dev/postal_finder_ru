@@ -7,9 +7,13 @@ from typing import Optional, Dict, Any
 custom_logger = CustomLogger(__name__)
 
 class ApiClient:
-    def get_postal_data(self, post_code: str) -> Optional[Dict[str, Any]]: # Указывает, что функция может вернуть либо словарь
-        # (где ключи — строки и значения могут быть любого типа), либо None, когда данные не были получены из API.
-        """Получить данные о почтовом коде из API."""
+    """ Клиент для взаимодействия с API почтовых индексов. """
+    def get_postal_data(self, post_code: str) -> Optional[Dict[str, Any]]:
+        """Извлекает данные о почтовом индексе из API по заданному почтовому коду.
+            :param post_code: Почтовый код, для которого необходимо получить данные.
+            :return: Метод возвращает `Optional[Dict[str, Any]]`: Словарь с данными(где ключи — строки и значения могут быть любого типа)
+             о почтовом индексе, если запрос успешен; иначе возвращает `None`, если произошла ошибка при выполнении запроса.
+        """
         url = f"https://api.zippopotam.us/RU/{post_code}"
         try:
             response = requests.get(url)

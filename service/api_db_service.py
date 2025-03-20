@@ -8,11 +8,19 @@ from utils.custom_logger import CustomLogger
 custom_logger = CustomLogger(__name__)
 
 class ApiDBService:
-    def __init__(self, psycopg2_client: Optional[Psycopg2Client]) -> None:
+    """Класс ApiDBService предназначен для получения данных о почтовых кодах из API и
+       их сохранения в базе данных."""
+    def __init__(self, psycopg2_client:Psycopg2Client) -> None:
+        """Инициализирует ApiDBService с клиентом базы данных.
+            :param psycopg2_client: Экземпляр Psycopg2Client для взаимодействия с базой данных.
+            :return: None """
         self.psycopg2_client = psycopg2_client
 
     def fetch_postal_code_from_api(self, postal_code: str) -> Optional[PostalCodeInfo]:
-        """Получить данные о почтовом коде из API и сохранить в БД."""
+        """Получает данные о почтовом коде из API и сохраняет их в базе данных.
+            :param postal_code: Почтовый код, для которого необходимо получить данные.
+            :return: Метод возвращает Optional[PostalCodeInfo]: объект PostalCodeInfo с данными о почтовом коде, если запрос успешен;
+            иначе возвращает None, если данные не были получены."""
         from clients.api_client import ApiClient
         postal_data = ApiClient().get_postal_data(postal_code)
         if postal_data:
