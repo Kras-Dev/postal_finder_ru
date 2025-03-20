@@ -5,15 +5,18 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 from config.db_data import Data
 
-# Проверяем наличие переменных окружения
+
 Data.validate()
 # Создаем движок SQLAlchemy
 engine = create_engine(Data.DB_URL)
 # Определяем базовый класс для моделей
 Base = declarative_base()
 
-# Определяем модель для таблицы postal_codes
 class PostalCode(Base):
+    """Модель для таблицы postal_codes в базе данных.
+
+    Эта модель представляет информацию о почтовых кодах, включая страну,
+    название места, координаты и другую связанную информацию."""
     __tablename__ = "postal_codes"
 
     post_code = Column(String(10), primary_key=True)
@@ -25,17 +28,17 @@ class PostalCode(Base):
     state_abbreviation = Column(String(10))
     latitude = Column(Float, nullable=False)
 
-    def __repr__(self) -> str:
-        return f"<PostalCode(postal_code='{self.postal_code}', place_name='{self.place_name}')>"
 
 class PostalCodeRequestStatistics(Base):
+    """Модель для таблицы postal_codes_requests_statistics в базе данных.
+
+    Эта модель хранит статистику запросов по почтовым кодам,
+    включая количество запросов для каждого почтового кода."""
     __tablename__ = "postal_codes_requests_statistics"
 
     post_code = Column(String(10), primary_key=True)
     request_count = Column(Integer, default=0)
 
-    def __repr__(self) -> str:
-        return f"<PostalCodeRequestStatistics(postal_code='{self.postal_code}', request_count={self.request_count})>"
 
 Base.metadata.create_all(bind=engine)
 # # Создаем сессию

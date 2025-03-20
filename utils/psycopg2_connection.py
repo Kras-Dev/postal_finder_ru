@@ -28,7 +28,7 @@ class Psycopg2Connection:
                 port=Data.DB_PORT,
                 database=Data.DB_NAME
             )
-            custom_logger.log_with_context(f"Connected to PostgreSQL conn:{id(connection)}")
+            custom_logger.log_with_context(f"Connected to PostgresSQL conn:{id(connection)}")
             return connection
 
         except psycopg2.Error as e:
