@@ -6,14 +6,13 @@ from config.db_data import Data
 from utils.custom_logger import CustomLogger
 
 custom_logger = CustomLogger(__name__)
-Data.validate()
-
 
 class Psycopg2Connection:
     """Класс для управления соединением с базой данных PostgresSQL с использованием библиотеки psycopg2.
     Этот класс предоставляет методы для подключения к базе данных, выполнения SQL-запросов, закрытия соединения и курсора.    """
     def __init__(self) -> None:
         """метод устанавливает значение атрибутов connection и cursor в None."""
+        Data.validate()
         self.connection: Optional[psycopg2.extensions.connection] = None
         self.cursor: Optional[psycopg2.extensions.cursor] = None
 
@@ -75,7 +74,7 @@ class Psycopg2Connection:
                 self.connect()
             self.cursor.execute(query, params)
             if fetch_one and fetch_all:
-                raise ValueError("Cannot fetch both one and all rows at the same time.")
+                raise ValueError("You can't get fetch_one and fetch_all at the same time..")
             if commit:
                 self.connection.commit()
             elif fetch_one:

@@ -1,14 +1,8 @@
 # models/sqlalchemy_models.py
 
-from sqlalchemy import create_engine, Column, Integer, String, Float
+from sqlalchemy import Column, Integer, String, Float
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker
-from config.db_data import Data
 
-
-Data.validate()
-# Создаем движок SQLAlchemy
-engine = create_engine(Data.DB_URL)
 # Определяем базовый класс для моделей
 Base = declarative_base()
 
@@ -39,15 +33,9 @@ class PostalCodeRequestStatistics(Base):
     post_code = Column(String(10), primary_key=True)
     request_count = Column(Integer, default=0)
 
+def create_tables(engine):
+    """Метод создает таблицы в базе данных, если они еще не существуют."""
+    # Создаем движок SQLAlchemy
+    # engine = create_engine(Data.DB_URL)
+    Base.metadata.create_all(bind=engine, checkfirst=True)
 
-Base.metadata.create_all(bind=engine)
-# # Создаем сессию
-# SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-#
-# # Функция для получения сессии
-# def get_db():
-#     db = SessionLocal()
-#     try:
-#         yield db
-#     finally:
-#         db.close()

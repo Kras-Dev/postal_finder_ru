@@ -1,13 +1,14 @@
 # models/psycopg2_client.py
 from typing import Optional
 
+from clients.base_client import BaseClient
 from utils.custom_logger import CustomLogger
 from clients.postal_code_info import PostalCodeInfo
 from utils.psycopg2_connection import Psycopg2Connection
 
 custom_logger = CustomLogger(__name__)
 
-class Psycopg2Client:
+class Psycopg2Client(BaseClient):
     """Класс `Psycopg2Client` предназначен для работы с базой данных PostgresSQL и предоставляет методы для получения
     информации о почтовых кодах."""
     def __init__(self,  connection: Psycopg2Connection) -> None:
@@ -36,14 +37,13 @@ class Psycopg2Client:
             WHERE post_code = %s;                
         '''
         result = self.connection.execute_query(query, (postal_code, ), fetch_one=True)
-        if result:
-            #longitude, latitude, country, state = result  # Извлекаем данные результата
-            postal_info = PostalCodeInfo(*result)#longitude, latitude, country, state)
-            self.increment_request_statistic(postal_code)  # Увеличиваем счётчик запросов
-            return postal_info  # Возвращаем информацию о почтовом коде
-        else:
+        if result is None:
             custom_logger.log_with_context(f"No postal data {postal_code} found in database")
             return None
+        # longitude, latitude, country, state = result  # Извлекаем данные результата
+        postal_info = PostalCodeInfo(*result)  # PostalCodeInfo(longitude, latitude, country, state)
+        self.increment_request_statistic(postal_code)  # Увеличиваем счётчик запросов
+        return postal_info
 
     def insert_postal_code(self, postal_data: dict) -> None:
         """Вставляет данные о почтовом коде в базу данных.

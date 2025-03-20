@@ -2,7 +2,7 @@
 from typing import Optional
 
 from clients.postal_code_info import PostalCodeInfo
-from clients.psycopg2_client import Psycopg2Client
+from clients.base_client import BaseClient
 from utils.custom_logger import CustomLogger
 
 custom_logger = CustomLogger(__name__)
@@ -10,11 +10,11 @@ custom_logger = CustomLogger(__name__)
 class ApiDBService:
     """Класс ApiDBService предназначен для получения данных о почтовых кодах из API и
        их сохранения в базе данных."""
-    def __init__(self, psycopg2_client:Psycopg2Client) -> None:
+    def __init__(self, db_client: BaseClient) -> None:
         """Инициализирует ApiDBService с клиентом базы данных.
-            :param psycopg2_client: Экземпляр Psycopg2Client для взаимодействия с базой данных.
+            :param db_client: Экземпляр BaseClient для взаимодействия с базой данных.
             :return: None """
-        self.psycopg2_client = psycopg2_client
+        self.db_client = db_client
 
     def fetch_postal_code_from_api(self, postal_code: str) -> Optional[PostalCodeInfo]:
         """Получает данные о почтовом коде из API и сохраняет их в базе данных.
@@ -24,8 +24,8 @@ class ApiDBService:
         from clients.api_client import ApiClient
         postal_data = ApiClient().get_postal_data(postal_code)
         if postal_data:
-            self.psycopg2_client.insert_postal_code(postal_data)
-            self.psycopg2_client.increment_request_statistic(postal_code)
+            self.db_client.insert_postal_code(postal_data)
+            self.db_client.increment_request_statistic(postal_code)
             return PostalCodeInfo(
                 postal_data['places'][0]['longitude'],
                 postal_data['places'][0]['latitude'],
