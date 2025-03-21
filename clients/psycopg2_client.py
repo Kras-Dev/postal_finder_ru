@@ -28,7 +28,7 @@ class Psycopg2Client(BaseClient):
         return postal_info
 
     def get_postal_code_from_db(self, postal_code: str) -> Optional[PostalCodeInfo]:
-        """Получает информацию о почтовом коде из базы данных.
+        """Получает выборку о почтовом коде из базы данных.
             :param postal_code: Строка, представляющая почтовый код.
             :return: Optional[PostalCodeInfo]: Содержит данные о почтовом коде, если они найдены; иначе возвращает `None`."""
         query = '''

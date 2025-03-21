@@ -1,4 +1,4 @@
-#utils/sqlalchemy_connection.py
+# utils/sqlalchemy_connection.py
 from typing import Optional, Tuple, Any, Union, List, Mapping
 
 from sqlalchemy import create_engine
@@ -26,17 +26,24 @@ class SQLAlchemyConnection:
             Создаем фабрику сессий.\n
             Используем фабрику для создания новой сессии.
         """
-        Data.validate()
+        self.engine: Optional[create_engine] = None
+        self.SessionLocal: Optional[sessionmaker] = None
+        self.session: Optional[Session] = None
+
+
+    def connect(self) -> None:
         try:
+            Data.validate()
             self.engine = create_engine(Data.DB_URL)
             self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
-            self.session: Optional[Session] = None
         except SQLAlchemyError as e:
             custom_logger.log_with_context(f"Error creating database engine: {e}")
 
     def get_session(self) -> Session:
         """Создает новую сессию для взаимодействия с базой данных.
             :return: Новая сессия SQLAlchemy."""
+        if self.SessionLocal is None:
+            raise Exception("SessionLocal is not initialized. Check database connection.")
         self.session = self.SessionLocal()
         custom_logger.log_with_context(f"Created new session, session_id: {id(self.session)}")
         return self.session
@@ -52,6 +59,8 @@ class SQLAlchemyConnection:
             self.session = None
         if self.engine:
             self.engine.dispose()
+            self.engine = None
+        self.SessionLocal = None
         custom_logger.log_with_context("Disconnected from PostgresSQL")
 
     def execute_query(self,

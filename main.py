@@ -6,7 +6,7 @@ from clients.psycopg2_client import Psycopg2Client
 from utils.sqlalchemy_connection import SQLAlchemyConnection
 
 def main():
-    postal_code_to_select = "183008"
+    postal_code_to_select = "156026"
 
     # Подключение через Psycopg2
     conn = Psycopg2Connection()
@@ -26,6 +26,7 @@ def main():
     # Подключение через SQLAlchemy
     conn1 = SQLAlchemyConnection()
     try:
+        conn1.connect()
         client1 = SqlAlchemyClient(conn1)
         result1 = client1.select_postal_code(postal_code_to_select)
         print(result1)
