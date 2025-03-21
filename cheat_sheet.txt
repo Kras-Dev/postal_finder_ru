@@ -8,6 +8,10 @@
 Позже, чтобы установить все зависимости из файла requirements.txt, вы можете использовать команду:
 pip install -r requirements.txt
 
+Запускайте pytest через модуль Python:
+python -m pytest
+Это автоматически добавит текущую директорию в sys.path.
+
 Установка и интеграция Alembic с SQLAlchemy
 1. Установка: pip install alembic
 2. Инициализация: alembic init alembic - Это создаст каталог alembic с необходимыми конфигурационными файлами.
