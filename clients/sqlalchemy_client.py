@@ -31,12 +31,12 @@ class SqlAlchemyClient(BaseClient):
         :param postal_code: Почтовый код для поиска.
         :return: Информация о почтовом коде или None, если не найдено.
         """
-        with self.session:
-            postal_info = self.get_postal_code_from_db(postal_code)
-            if not postal_info:
-                from service.api_db_service import ApiDBService
-                return ApiDBService(self).fetch_postal_code_from_api(postal_code)
-            return postal_info
+
+        postal_info = self.get_postal_code_from_db(postal_code)
+        if not postal_info:
+            from service.api_db_service import ApiDBService
+            return ApiDBService(self).fetch_postal_code_from_api(postal_code)
+        return postal_info
 
     def get_postal_code_from_db(self, postal_code: str)-> Optional[PostalCodeInfo]:
         """
@@ -47,8 +47,8 @@ class SqlAlchemyClient(BaseClient):
         """
         query = select(PostalCode.longitude, PostalCode.latitude, PostalCode.country, PostalCode.state).where(
             PostalCode.post_code == str(postal_code))
-        result = self.session.execute(query).fetchone()
-        #result = self.session.query(PostalCode).filter_by(post_code = postal_code).first()
+        with self.session as session:
+            result = session.execute(query).fetchone()
         if result is None:
             custom_logger.log_with_context(f"No postal data {postal_code} found in database")
             return None
@@ -72,15 +72,19 @@ class SqlAlchemyClient(BaseClient):
             state=postal_data['places'][0]['state'],
             state_abbreviation=postal_data['places'][0]['state abbreviation']
         )
-        self.session.add(postal_info)
-        self.session.commit()
+        with self.session as session:
+            session.add(postal_info)
+            session.commit()
 
     def increment_request_statistic(self, postal_code: str) -> None:
         """Обновляет или создает запись статистики запросов для заданного почтового кода.
                :param postal_code: Строка, представляющая почтовый код, для которого необходимо обновить статистику."""
 
         with self.session as session:
-            statistic = session.query(PostalCodeRequestStatistics).filter_by(post_code = postal_code).first()
+            # statistic = session.execute(
+            #     select(PostalCodeRequestStatistics).where(PostalCodeRequestStatistics.post_code == postal_code)
+            # ).scalars().first()
+            statistic = session.query(PostalCodeRequestStatistics).filter_by(post_code=postal_code).first()
             if statistic:
                 statistic.request_count += 1
             else:

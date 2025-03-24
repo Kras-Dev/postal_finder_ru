@@ -36,7 +36,7 @@ def main():
                 conn.connect()
                 client = SqlAlchemyClient(conn)
                 result = client.select_postal_code(postal_code)
-                print("Результат SQLAlchemy:", result)
+                print("Результат SQLAlchemy:\n", result)
             except Exception as e:
                 print(f"Ошибка SQLAlchemy: {str(e)}")
             finally:
