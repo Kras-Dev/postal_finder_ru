@@ -2,6 +2,7 @@
 from typing import Optional, Tuple, Any, Union, List
 
 import psycopg2
+from psycopg2 import pool
 from config.db_data import Data
 from utils.custom_logger import CustomLogger
 
@@ -13,22 +14,23 @@ class Psycopg2Connection:
     def __init__(self) -> None:
         """метод устанавливает значение атрибутов connection и cursor в None."""
         Data.validate()
+        self.connection_pool:  Optional[psycopg2.pool.SimpleConnectionPool] = None
         self.connection: Optional[psycopg2.extensions.connection] = None
         self.cursor: Optional[psycopg2.extensions.cursor] = None
 
-    def connect_to_db(self) -> Optional[psycopg2.extensions.connection]:
+    def connect_to_db(self) -> Optional[psycopg2.pool.SimpleConnectionPool]:
         """Устанавливает соединение с базой данных PostgresSQL
-            :return: connection: Возвращает объект соединения с базой данных, или None в случае ошибки."""
+             :return: connection_pool: Возвращает объект пула соединений, или None в случае ошибки."""
         try:
-            connection = psycopg2.connect(
+            self.connection_pool = psycopg2.pool.SimpleConnectionPool(minconn=1,
+                maxconn=5,
                 user=Data.DB_USER,
                 password=Data.DB_PASS,
                 host=Data.DB_HOST,
                 port=Data.DB_PORT,
                 database=Data.DB_NAME
             )
-            custom_logger.log_with_context(f"Connected to PostgresSQL conn:{id(connection)}")
-            return connection
+            return self.connection_pool
 
         except psycopg2.Error as e:
             custom_logger.log_with_context(f"Error connecting to the database: {e}")
@@ -36,17 +38,19 @@ class Psycopg2Connection:
 
     def connect(self) -> None:
         """Устанавливает соединение с базой данных и создает курсор."""
-        self.connection = self.connect_to_db()
-        if self.connection is not None:
+        self.connection_pool = self.connect_to_db()
+        if self.connection_pool is not None:
+            self.connection = self.connection_pool.getconn()
             self.cursor = self.connection.cursor()
+        custom_logger.log_with_context(f"Connected to PostgresSQL conn:{id(self.connection)}")
 
     def disconnect(self) -> None:
         """Закрывает курсор и соединение."""
         if self.cursor:
             self.cursor.close()
-        if self.connection:
-            custom_logger.log_with_context(f"Closed connection {id(self.connection)}")
-            self.connection.close()
+        if self.connection_pool and self.connection:
+            self.connection_pool.putconn(self.connection)
+            custom_logger.log_with_context(f"Returned connection {id(self.connection)} to pool")
         custom_logger.log_with_context("Disconnected from PostgresSQL")
 
     def execute_query( self,

@@ -32,9 +32,18 @@ class SQLAlchemyConnection:
 
 
     def connect(self) -> None:
+        """Устанавливает соединение с базой данных, создавая движок SQLAlchemy и сеансовую фабрику."""
+
+        """
+        pool_size (int): Максимальное количество соединений, которые пул будет поддерживать открытыми.
+        max_overflow (int): Максимальное количество соединений, которое пул может создать сверх pool_size. 
+                           Если это значение равно 0, пул не будет переполняться.
+        pool_recycle (int): Количество секунд, после которых соединение будет переработано. Это полезно для 
+                           баз данных, которые отключают соединения после определенного периода бездействия.
+        """
         try:
             Data.validate()
-            self.engine = create_engine(Data.DB_URL)
+            self.engine = create_engine(Data.DB_URL, pool_size=5, max_overflow=0, pool_recycle=3600)
             self.SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=self.engine)
         except SQLAlchemyError as e:
             custom_logger.log_with_context(f"Error creating database engine: {e}")
@@ -90,7 +99,7 @@ class SQLAlchemyConnection:
             elif fetch_one:
                 return result.fetchone()
             elif fetch_all:
-                # Приводим результат к списку кортежей
+                """Приводим результат к списку кортежей"""
                 return [tuple(row) for row in result.fetchall()]
 
         except SQLAlchemyError as e:

@@ -22,7 +22,9 @@ def test_connect(mock_sqlalchemy_connection):
     """Тест подключения к базе данных."""
     with patch('utils.sqlalchemy_connection.create_engine') as mock_create_engine:
         mock_sqlalchemy_connection.connect()
-        mock_create_engine.assert_called_once_with(Data.DB_URL)
+        mock_create_engine.assert_called_once_with(Data.DB_URL,pool_size=5,
+            max_overflow=0,
+            pool_recycle=3600)
         assert mock_sqlalchemy_connection.engine is not None
         assert mock_sqlalchemy_connection.SessionLocal is not None
         assert mock_sqlalchemy_connection.session is None

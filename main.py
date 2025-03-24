@@ -6,34 +6,44 @@ from clients.psycopg2_client import Psycopg2Client
 from utils.sqlalchemy_connection import SQLAlchemyConnection
 
 def main():
-    postal_code_to_select = "156026"
+    while True:
+        postal_code = input("\nВведите почтовый индекс (или 'exit' для выхода): ").strip()
+        if postal_code.lower() == 'exit':
+            break
 
-    # Подключение через Psycopg2
-    conn = Psycopg2Connection()
-    try:
-        conn.connect()
-        if conn.connection:
-            client = Psycopg2Client(conn)
-            result = client.select_postal_code(postal_code_to_select)
-            print(result)
+        client_type = input("Выберите клиент (1 - Psycopg2, 2 - SQLAlchemy): ").strip()
+
+        if client_type == '1':
+            """Обработка через Psycopg2"""
+            conn = Psycopg2Connection()
+            try:
+                conn.connect()
+                if conn.connection:
+                    client = Psycopg2Client(conn)
+                    result = client.select_postal_code(postal_code)
+                    print("Результат Psycopg2:", result)
+                else:
+                    print("Не удалось подключиться к базе данных через Psycopg2")
+            except Exception as e:
+                print(f"Ошибка Psycopg2: {str(e)}")
+            finally:
+                conn.disconnect()
+
+        elif client_type == '2':
+            """Обработка через SQLAlchemy"""
+            conn = SQLAlchemyConnection()
+            try:
+                conn.connect()
+                client = SqlAlchemyClient(conn)
+                result = client.select_postal_code(postal_code)
+                print("Результат SQLAlchemy:", result)
+            except Exception as e:
+                print(f"Ошибка SQLAlchemy: {str(e)}")
+            finally:
+                conn.disconnect()
+
         else:
-            print("Не удалось подключиться к базе данных.")
-    except Exception as e:
-        print(f"Ошибка при подключении через Psycopg2: {e}")
-    finally:
-        conn.disconnect()
-
-    # Подключение через SQLAlchemy
-    conn1 = SQLAlchemyConnection()
-    try:
-        conn1.connect()
-        client1 = SqlAlchemyClient(conn1)
-        result1 = client1.select_postal_code(postal_code_to_select)
-        print(result1)
-    except Exception as e:
-        print(f"Ошибка при подключении через SQLAlchemy: {e}")
-    finally:
-        conn1.disconnect()
+            print("Неверный выбор клиента. Введите 1 или 2")
 
 
 
