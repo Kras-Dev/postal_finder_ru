@@ -4,6 +4,7 @@ from typing import Optional
 from clients.postal_code_info import PostalCodeInfo
 from clients.base_client import BaseClient
 from utils.custom_logger import CustomLogger
+from clients.api_client import ApiClient
 
 custom_logger = CustomLogger(__name__)
 
@@ -21,7 +22,7 @@ class ApiDBService:
             :param postal_code: Почтовый код, для которого необходимо получить данные.
             :return: Метод возвращает Optional[PostalCodeInfo]: объект PostalCodeInfo с данными о почтовом коде, если запрос успешен;
             иначе возвращает None, если данные не были получены."""
-        from clients.api_client import ApiClient
+
         postal_data = ApiClient().get_postal_data(postal_code)
         if postal_data:
             self.db_client.insert_postal_code(postal_data)
